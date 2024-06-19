@@ -7,6 +7,7 @@ function Post() {
   const [pname, setPname] = useState("");
   const [price, setPrice] = useState("");
   const [slife, setSlife] = useState("");
+  
   const [pnameError, setPnameError] = useState("");
   const [priceError, setPriceError] = useState("");
   const [slifeError, setSlifeError] = useState("");
@@ -17,22 +18,10 @@ function Post() {
   // const [user, setUser] = useState({});
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   const fetchUser = async () => {
-  //     try {
-  //       const res = await userslist();
-  //       setUser(res);
-       
-  //     } catch {
-  //       console.log("crashed");
-  //     }
-  //   };
-  //   fetchUser();
-  // }, []);
-
   
   const fssai = user.FSSAI|| "";
   const dname = user.dairy_name || "";
+  const location = user.location || "";
 
   const handlePost = async () => {
     let isValid = true;
@@ -80,7 +69,7 @@ function Post() {
       return;
     }
     try {
-      await post(pname, price, slife, dname, quant, fssai);
+      await post(pname, price, slife, dname, quant, fssai,location);
       // Show success popup
       setShowPopup(true);
       // Optionally, reset form fields or redirect after a delay
@@ -231,6 +220,18 @@ function Post() {
           type="text"
           value={dname}
           id="dname"
+          className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
+          disabled
+        />
+      </div>
+      <div className="mb-5">
+        <label htmlFor="location" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          Location
+        </label>
+        <input
+          type="text"
+          value={location}
+          id="location"
           className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
           disabled
         />

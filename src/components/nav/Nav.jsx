@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState,useEffect,useContext } from "react";
 import {Navbar, NavbarBrand,NavbarMenuItem, NavbarMenu,NavbarMenuToggle ,NavbarContent, NavbarItem, Link, Button, Modal, ModalContent, ModalHeader, ModalBody,Select, SelectItem, useDisclosure} from "@nextui-org/react";
 import { Logo } from "./Logo";
 import { useNavigate } from 'react-router-dom';
@@ -9,13 +9,14 @@ import { IoMdAdd } from "react-icons/io";
 import { CgProfile } from "react-icons/cg";
 import { isUserValid } from "../../../lib/pocketbase";
 import { logOut } from "../../../lib/pocketbase";
+import Admcontext from '../../context/admcontext';
 function Nav() {
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const history = useNavigate()
-  const {isOpen, onOpen, onOpenChange} = useDisclosure();
-  const {isnActive,setIsnActive} = useState(null)
-  const [region,setRegion] = useState(null)
+  
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const history = useNavigate();
+    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const { selectedLocation, setSelectedLocation } = useContext(Admcontext);
 
 const cities = [
   "Abohar",
@@ -199,6 +200,7 @@ const cities = [
       items={cities}
       searchable={true} 
       aria-label
+      onChange={(e) => setSelectedLocation(e.target.value)}
     >
         {Array.isArray(cities) && cities.map((city,index) => (<SelectItem className="w-40" key={index} >{city}</SelectItem>))}
       </Select>
@@ -230,6 +232,7 @@ const cities = [
       disableSelectorIconRotation
       items={cities}
       searchable={true} aria-label
+      onChange={(e) => setSelectedLocation(e.target.value)}
     >
         {Array.isArray(cities) && cities.map((city, index) => (
           <SelectItem className="w-28" key={index}>{city}</SelectItem>

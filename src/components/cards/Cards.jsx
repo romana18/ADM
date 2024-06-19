@@ -1,22 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Card, CardBody, CardFooter, Image } from '@nextui-org/react';
 import { profilelist, isUserValid } from '../../../lib/pocketbase';
 import { getRelativeTime } from './useDate';
+import { useNavigate } from 'react-router-dom';
+import Admcontext from '../../context/admcontext';
 
 function Cards({ currentPage, itemsPerPage }) {
     const [data, setData] = useState([]);
+    const { user, setProdname, setProdprice, setProdslife, setDairyname, setFSSAI, setProdquant, setProdlocation, setProdcreated, selectedLocation } = useContext(Admcontext);
+    const history = useNavigate();
 
     useEffect(() => {
         profilelist()
             .then(res => {
-                // Sort data by 'created' timestamp in descending order
+                console.log('Fetched data:', res); // Log fetched data for debugging
                 res.sort((a, b) => new Date(b.created) - new Date(a.created));
                 setData(res);
             })
-            .catch(err => console.log(err));
+            .catch(err => console.error('Error fetching data:', err)); // Log any fetch errors
     }, []);
 
-    const productimage = productname => {
+    const productimage = (productname) => {
         switch (productname.toLowerCase()) {
             case 'milk':
                 return 'https://images.pexels.com/photos/248412/pexels-photo-248412.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1';
@@ -39,30 +43,55 @@ function Cards({ currentPage, itemsPerPage }) {
         }
     };
 
-    let currentItems = data;
+    const filterDataByLocation = (data, location) => {
+        if (!location) return data;
+        return data.filter(item => item.location === location);
+    };
+
+    const filteredData = filterDataByLocation(data, selectedLocation);
+
+    let currentItems = filteredData;
 
     if (currentPage && itemsPerPage) {
         const indexOfLastItem = currentPage * itemsPerPage;
         const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-        currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
+        currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
     }
 
+    useEffect(() => {
+        console.log('Current location:', selectedLocation); // Log selectedLocation changes for debugging
+    }, [selectedLocation]);
+
+    useEffect(() => {
+        console.log('Filtered data:', filteredData); // Log filteredData changes for debugging
+    }, [filteredData]);
+
     return (
-        <>
-            <div className="gap-2 grid grid-cols-2 sm:grid-cols-4 p-4 mt-5 mb-20">
-                {currentItems.map((item, index) => (
+        <div className="gap-2 grid grid-cols-2 sm:grid-cols-4 p-4 mt-5 mb-20">
+            {currentItems.length > 0 ? (
+                currentItems.map((item, index) => (
                     <Card
                         shadow="sm"
                         key={index}
                         isPressable
-                        onPress={() => console.log('item pressed')}
+                        onClick={() => {
+                            setProdcreated(getRelativeTime(item.created));
+                            setDairyname(item.dairy_name);
+                            setProdslife(item.shelf_life);
+                            setProdquant(item.quantity);
+                            setProdname(item.product_name);
+                            setProdlocation(item.location);
+                            setFSSAI(user.FSSAI);
+                            setProdprice(item.price);
+                            history('/product');
+                        }}
                     >
                         <CardBody className="overflow-visible p-0">
                             <Image
                                 shadow="sm"
                                 radius="lg"
                                 width="100%"
-                                alt={item.title}
+                                alt={item.product_name}
                                 className="w-full object-cover h-72"
                                 src={productimage(item.product_name)}
                             />
@@ -85,9 +114,11 @@ function Cards({ currentPage, itemsPerPage }) {
                             </CardFooter>
                         )}
                     </Card>
-                ))}
-            </div>
-        </>
+                ))
+            ) : (
+                <p>Searching.</p>
+            )}
+        </div>
     );
 }
 

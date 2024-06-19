@@ -16,11 +16,15 @@ function Profile() {
   const history = useNavigate();
   const [showPopup, setShowPopup] = useState(false);
   const {user}= useContext(Admcontext)
-  const {posts} = useContext(Admcontext)
+  const [posts,setPosts] = useState({})
 
-
-
-
+  useEffect(() => {
+    try {
+        profilelist().then(res => setPosts(res));
+    } catch {
+        console.log("error");
+    }
+}, []);
   if (!isUserValid) {
     return <LogIn />;
 }
